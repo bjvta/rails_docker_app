@@ -16,5 +16,25 @@ services:
       - '3000:3000'
     depends_on:
       - db
+    links:
+      - "sidekiq:sidekiq"
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - tmpdb:/var/lib/redis/data
+  sidekiq:
+    build: .
+    command: 'bundle exec sidekiq'
+    volumes:
+      - ./:/myapp
+    environment:
+      RAILS_ENV: "development"
+      REDIS_URL: "redis://redis:6379/12"
+    depends_on:
+      - db
+      - redis
 volumes:
   db:
+  tmpdb:
